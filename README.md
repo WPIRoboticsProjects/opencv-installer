@@ -6,10 +6,13 @@ This assumes that the OpenCV artifacts are located in the FRC maven repository a
 For now, this is just a CLI app with no GUI.
 
 ## Supported platforms
-This currently supports
-- Windows (32- and 64-bit)
-- Mac OS X 10.4 or higher
-- Linux (32- and 64-bit)
+This currently supports  
+
+- Windows (32- and 64-bit)  
+- Mac OS X 10.4 or higher  
+- Linux (32- and 64-bit)  
+
+ARM/Android is not currently supported.
 
 ## Command line arguments
 

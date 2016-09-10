@@ -32,7 +32,7 @@ class PlatformDetector {
         } else if (osName.contains("linux")) {
             os = "linux";
         } else {
-            throw new UnsupportedOperatingSystemError(osName);
+            throw new UnsupportedOperatingSystemError("Unsupported OS: " + osName);
         }
         return os;
     }
@@ -45,16 +45,19 @@ class PlatformDetector {
      * </ul>
      *
      * @return the operating system architecture
+     * @throws UnsupportedOperatingSystemError if the architecture is not supported
      */
-    private static String getArch() {
+    private static String getArch() throws UnsupportedOperatingSystemError {
         if (arch != null) {
             return arch;
         }
-        String arch = System.getProperty("os.arch");
-        if (arch.matches("^(i386|x86)$")) {
+        String archName = System.getProperty("os.arch");
+        if (archName.matches("^(i386|x86)$")) {
             arch = "32";
-        } else {
+        } else if (archName.equals("x86_64")) {
             arch = "64";
+        } else {
+            throw new UnsupportedOperatingSystemError("Unsupported architecture: " + archName);
         }
         return arch;
     }
