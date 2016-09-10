@@ -6,8 +6,6 @@ import org.apache.commons.cli.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -20,6 +18,8 @@ import java.util.zip.ZipInputStream;
 /**
  * A command line application that downloads and installs OpenCV. This assumes that the OpenCV artifacts will be
  * available on the FRC maven server at http://first.wpi.edu/FRC/roborio/maven or in the local maven repository.
+ *
+ * <p>Install locations are specified by the current {@link Platform}</p>
  */
 @UtilityClass
 public class Installer {
@@ -58,7 +58,10 @@ public class Installer {
     }
 
 
-    public static void main(String... args) throws ParseException {
+    /**
+     * Main entry point.
+     */
+    public static void main(String[] args) throws ParseException {
         CommandLineParser p = new DefaultParser();
         Options options = new Options() {{
             addOption("j", "java", false, "Install the Java API jar in the working directory");
@@ -81,11 +84,9 @@ public class Installer {
             throw new MissingOptionException("-v <version>");
         }
         if (parsedArgs.hasOption("platform")) {
-            overridePlatform = true;
-            platform = Platform.valueOf(parsedArgs.getOptionValue("platform"));
+            setPlatform(Platform.valueOf(parsedArgs.getOptionValue("platform")));
         }
-        openCvVersion = parsedArgs.getOptionValue("version");
-        version = platform + "-" + openCvVersion;
+        setVersion(parsedArgs.getOptionValue("version"));
         overwrite = !parsedArgs.hasOption("no-overwrite");
         System.out.println("Installing specified OpenCV components");
         System.out.println("======================================");
@@ -106,22 +107,60 @@ public class Installer {
         System.out.println("Finished installing OpenCV");
     }
 
-    private static void installJava() {
+    /**
+     * Sets a specific platform to install. Artifacts will be downloaded into the working directory and will need to be
+     * manually installed.
+     *
+     * @param p the platform to get the artifacts for
+     */
+    public static void setPlatform(Platform p) {
+        platform = p;
+        calculateVersion();
+        overridePlatform = true;
+    }
+
+    /**
+     * Sets the version of OpenCV to get artifacts for.
+     *
+     * @param v the version of OpenCV to install
+     */
+    public static void setVersion(String v) {
+        openCvVersion = v;
+        calculateVersion();
+    }
+
+    private static void calculateVersion() {
+        version = platform + "-" + openCvVersion;
+    }
+
+    /**
+     * Downloads the Java API jar.
+     */
+    public static void installJava() {
         System.out.println("Installing Java");
         install(ArtifactType.JAVA);
     }
 
-    private static void installJni() {
+    /**
+     * Installs the JNI bindings.
+     */
+    public static void installJni() {
         System.out.println("Installing JNI");
         install(ArtifactType.JNI);
     }
 
-    private static void installHeaders() {
+    /**
+     * Installs the C++ headers.
+     */
+    public static void installHeaders() {
         System.out.println("Installing headers");
         install(ArtifactType.HEADERS);
     }
 
-    private static void installNatives() {
+    /**
+     * Installs the C++ native libraries.
+     */
+    public static void installNatives() {
         System.out.println("Installing natives");
         install(ArtifactType.NATIVES);
     }

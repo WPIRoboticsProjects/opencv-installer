@@ -3,7 +3,7 @@ package edu.wpi.first.wpilib.opencv.installer;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
-class PlatformDetector {
+public class PlatformDetector {
 
     private static String os = null;
     private static String arch = null;
@@ -20,7 +20,7 @@ class PlatformDetector {
      * @return the current operating system
      * @throws UnsupportedOperatingSystemError if the current operating system is not supported
      */
-    private static String getOs() throws UnsupportedOperatingSystemError {
+    public static String getOs() throws UnsupportedOperatingSystemError {
         if (os != null) {
             return os;
         }
@@ -47,7 +47,7 @@ class PlatformDetector {
      * @return the operating system architecture
      * @throws UnsupportedOperatingSystemError if the architecture is not supported
      */
-    private static String getArch() throws UnsupportedOperatingSystemError {
+    public static String getArch() throws UnsupportedOperatingSystemError {
         if (arch != null) {
             return arch;
         }
@@ -67,7 +67,7 @@ class PlatformDetector {
      *
      * @return the current platform
      */
-    static Platform getPlatform() {
+    public static Platform getPlatform() {
         if (platform != null) {
             return platform;
         }
