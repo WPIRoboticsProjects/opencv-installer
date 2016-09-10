@@ -39,5 +39,5 @@ linux64
 
 ## Usage
 ```
-java -jar opencv-installer --version <version> --java --jni --headers --natives --no-overwrite
+java -jar opencv-installer --version <version> --platform <platform> --java --jni --headers --natives --no-overwrite
 ```
