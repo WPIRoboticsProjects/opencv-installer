@@ -26,7 +26,7 @@ public class Installer {
 
     private static final String userHome = System.getProperty("user.home");
     private static final String wpilibUrl = "http://first.wpi.edu/FRC/roborio/maven";
-    private static final String localMaven = userHome + "/.m2/repository";
+    private static final String mavenLocal = userHome + "/.m2/repository";
     private static final Path tmpDir;
     private static final Path unzippedDir;
     private static boolean overwrite = true;
@@ -158,12 +158,12 @@ public class Installer {
             URL remote = resolveRemote(artifactId, v);
             File local = resolveLocal(artifactId, v);
             File source;
+            if (!local.exists()) {
+                copyToMavenLocal(wpilibUrl, groupId, artifactId, v);
+            }
             if (local.exists()) {
                 System.out.println("Using local file at " + local.toURI());
                 source = local;
-            } else if (urlExists(remote)) {
-                System.out.println("Using remote file at " + remote);
-                source = download(remote, artifactId, v);
             } else {
                 throw new NoSuchFileException("Could not find artifacts. Looked in:\n" +
                         "        " + remote + "\n" +
@@ -190,47 +190,11 @@ public class Installer {
     }
 
     private static File resolveLocal(String artifactId, String version) {
-        return new File(resolveRelative(localMaven, artifactId, version));
+        return new File(resolveRelative(mavenLocal, artifactId, version));
     }
 
     private static String resolveRelative(String repo, String artifactId, String version) {
-        return repo + '/' + groupId.replace('.', '/') + '/' + artifactId + '/' + version + '/' + artifactId + '-' + version + ".jar";
-    }
-
-    /**
-     * Checks if the given URL exists
-     *
-     * @param url the url to check
-     * @return true if the url exists, false if it does not
-     * @throws IOException if the URL is malformed
-     */
-    private static boolean urlExists(URL url) throws IOException {
-        HttpURLConnection c = (HttpURLConnection) url.openConnection();
-        c.setConnectTimeout(1000);
-        c.setRequestMethod("GET");
-        c.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows; U; Windows NT 6.0; en-US; rv:1.9.1.2) Gecko/20090729 Firefox/3.5.2 (.NET CLR 3.5.30729)");
-        c.connect();
-        return c.getResponseCode() == HttpURLConnection.HTTP_OK;
-    }
-
-    /**
-     * Downloads the artifact at the given remote maven repository
-     *
-     * @param url        the root repository url
-     * @param artifactId the id of the artifact to download
-     * @param version    the version of the artifact to download
-     * @return the location of the downloaded artifact
-     * @throws IOException if the artifact could not be downloaded or a file could not be created for it
-     */
-    private static File download(URL url, String artifactId, String version) throws IOException {
-        HttpURLConnection c = (HttpURLConnection) url.openConnection();
-        c.setConnectTimeout(1000);
-        c.setRequestMethod("GET");
-        c.connect();
-        InputStream is = c.getInputStream();
-        Path downloadLocation = Files.createTempFile(tmpDir, artifactId + '-' + version, ".jar");
-        Files.copy(is, Files.createTempFile(tmpDir, artifactId + '-' + version, ".jar"));
-        return downloadLocation.toAbsolutePath().toFile();
+        return String.format("%s/%s/%s/%s/%s-%s.jar", repo, groupId.replace('.', '/'), artifactId, version, artifactId, version);
     }
 
     /**
@@ -291,6 +255,30 @@ public class Installer {
         } catch (IOException e) {
             throw new RuntimeException((e));
         }
+    }
+
+    /**
+     * Copies a remote library to the local maven repository. This only downloads the .jar and the .pom
+     *
+     * @return the path to the copied jar
+     */
+    private static Path copyToMavenLocal(String repo, String groupId, String artifactId, String version) throws IOException {
+        String remoteDir = String.format("%s/%s/%s/%s/", repo, groupId.replace('.', '/'), artifactId, version);
+        String name = String.format("%s-%s", artifactId, version);
+        String dstDir = remoteDir.replace(repo, mavenLocal);
+
+        String jar = name + ".jar";
+        String jarPath = remoteDir + jar;
+        System.out.println("Copying " + jarPath + " to the local maven repository");
+        Files.deleteIfExists(Paths.get(dstDir, jar));
+        Files.copy(new URL(jarPath).openStream(), Paths.get(dstDir, jar));
+
+        String pom = name + ".pom";
+        String pomPath = remoteDir + pom;
+        Files.deleteIfExists(Paths.get(dstDir, pom));
+        Files.copy(new URL(pomPath).openStream(), Paths.get(dstDir, pom));
+
+        return Paths.get(dstDir, jar);
     }
 
 }
