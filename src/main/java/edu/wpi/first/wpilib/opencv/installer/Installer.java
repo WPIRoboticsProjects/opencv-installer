@@ -40,7 +40,8 @@ public class Installer {
         }
     }
 
-    private static final Platform platform = PlatformDetector.getPlatform();
+    private static Platform platform = PlatformDetector.getPlatform();
+    private static boolean overridePlatform = false;
     private static final String groupId = "org.opencv";
     private static final String javaJarName = "opencv-java";
     private static final String jniName = "opencv-jni";
@@ -68,6 +69,7 @@ public class Installer {
             addOption("a", "all", false, "Installs all artifacts");
             addOption("v", "version", true, "Set the version of OpenCV to install");
             addOption(null, "no-overwrite", false, "Don't overwrite existing files when installing");
+            addOption(null, "platform", true, "Install artifacts for a specific platform");
         }};
         CommandLine parsedArgs = p.parse(options, args);
         if (parsedArgs.hasOption("help")) {
@@ -77,6 +79,10 @@ public class Installer {
         }
         if (!parsedArgs.hasOption("version")) {
             throw new MissingOptionException("-v <version>");
+        }
+        if (parsedArgs.hasOption("platform")) {
+            overridePlatform = true;
+            platform = Platform.valueOf(parsedArgs.getOptionValue("platform"));
         }
         openCvVersion = parsedArgs.getOptionValue("version");
         version = platform + "-" + openCvVersion;
@@ -124,24 +130,27 @@ public class Installer {
         try {
             String artifactId;
             String v = version;
-            String installLocation;
+            String installLocation = "";
+            if (overridePlatform) {
+                installLocation = "install";
+            }
             switch (type) {
                 case JAVA:
                     artifactId = javaJarName;
                     v = openCvVersion;
-                    installLocation = platform.getJavaInstallLocation();
+                    installLocation += platform.getJavaInstallLocation();
                     break;
                 case JNI:
                     artifactId = jniName;
-                    installLocation = platform.getJniInstallLocation();
+                    installLocation += platform.getJniInstallLocation();
                     break;
                 case HEADERS:
                     artifactId = headersName;
-                    installLocation = platform.getHeadersInstallLocation();
+                    installLocation += platform.getHeadersInstallLocation();
                     break;
                 case NATIVES:
                     artifactId = nativesName;
-                    installLocation = platform.getNativesInstallLocation();
+                    installLocation += platform.getNativesInstallLocation();
                     break;
                 default:
                     throw new UnsupportedOperationException("Unknown artifact type: " + type);

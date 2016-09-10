@@ -12,7 +12,7 @@ This currently supports
 - Mac OS X 10.4 or higher  
 - Linux (32- and 64-bit)  
 
-ARM/Android is not currently supported.
+ARM is not currently supported.
 
 ## Command line arguments
 
@@ -26,6 +26,16 @@ Short name | Long name | Description | Argument
 -n | --natives | Flags the C++ native libraries for install
 | | --all | Installs all OpenCV artifacts
 | | --no-overwrite | Do not overwrite already installed files
+| | --platform | Download artifacts for a specific platform. They will be located in `./install` | The platform to download artifacts for
+
+#### Options for `platform`
+```
+win32
+win64
+osx
+linux32
+linux64
+```
 
 ## Usage
 ```
