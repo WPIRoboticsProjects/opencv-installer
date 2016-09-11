@@ -29,7 +29,7 @@ public class Installer {
     private static final String mavenLocal = userHome + "/.m2/repository";
     private static final Path tmpDir;
     private static final Path unzippedDir;
-    private static boolean overwrite = true;
+    private static boolean overwrite = false;
 
     static {
         try {
@@ -71,7 +71,7 @@ public class Installer {
             addOption("help", "help", false, "Prints this help message");
             addOption("a", "all", false, "Installs all artifacts");
             addOption("v", "version", true, "Set the version of OpenCV to install");
-            addOption(null, "no-overwrite", false, "Don't overwrite existing files when installing");
+            addOption("o", "overwrite", false, "Overwrite existing files when installing");
             addOption(null, "platform", true, "Install artifacts for a specific platform");
         }};
         CommandLine parsedArgs = p.parse(options, args);
@@ -87,9 +87,8 @@ public class Installer {
             setPlatform(Platform.valueOf(parsedArgs.getOptionValue("platform")));
         }
         setVersion(parsedArgs.getOptionValue("version"));
-        overwrite = !parsedArgs.hasOption("no-overwrite");
+        overwrite = parsedArgs.hasOption("overwrite");
         System.out.println("Installing specified OpenCV components");
-        System.out.println("======================================");
         if (parsedArgs.hasOption("java") || parsedArgs.hasOption("all")) {
             installJava();
         }
@@ -110,6 +109,9 @@ public class Installer {
     /**
      * Sets a specific platform to install. Artifacts will be downloaded into the working directory and will need to be
      * manually installed.
+     *
+     * <p><strong>The platform is auto-detected when this class is loaded</strong>; this method should only be used
+     * when downloading artifacts for a different operating system or architecture.</p>
      *
      * @param p the platform to get the artifacts for
      */
@@ -137,7 +139,9 @@ public class Installer {
      * Downloads the Java API jar.
      */
     public static void installJava() {
+        System.out.println("====================");
         System.out.println("Installing Java");
+        System.out.println("====================");
         install(ArtifactType.JAVA);
     }
 
@@ -145,7 +149,9 @@ public class Installer {
      * Installs the JNI bindings.
      */
     public static void installJni() {
+        System.out.println("====================");
         System.out.println("Installing JNI");
+        System.out.println("====================");
         install(ArtifactType.JNI);
     }
 
@@ -153,7 +159,9 @@ public class Installer {
      * Installs the C++ headers.
      */
     public static void installHeaders() {
+        System.out.println("====================");
         System.out.println("Installing headers");
+        System.out.println("====================");
         install(ArtifactType.HEADERS);
     }
 
@@ -161,7 +169,9 @@ public class Installer {
      * Installs the C++ native libraries.
      */
     public static void installNatives() {
+        System.out.println("====================");
         System.out.println("Installing natives");
+        System.out.println("====================");
         install(ArtifactType.NATIVES);
     }
 

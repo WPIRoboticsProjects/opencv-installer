@@ -25,7 +25,7 @@ Short name | Long name | Description | Argument
 `-h` | `--headers` | Flags the C++ headers for install
 `-n` | `--natives` | Flags the C++ native libraries for install
 | | `--all` | Installs all OpenCV artifacts
-| | `--no-overwrite` | Do not overwrite already installed files
+| `-o` | `--overwrite` | Overwrite already installed files
 | | `--platform` | Download artifacts for a specific platform. They will be located in `./install` | The platform to download artifacts for
 
 #### Options for `platform`
