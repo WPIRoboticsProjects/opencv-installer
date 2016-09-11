@@ -195,6 +195,7 @@ public class Installer {
                     break;
                 case HEADERS:
                     artifactId = headersName;
+                    v = openCvVersion;
                     installLocation += platform.getHeadersInstallLocation();
                     break;
                 case NATIVES:
@@ -295,11 +296,15 @@ public class Installer {
                 if (dst.getParent() != null && !Files.exists(dst.getParent())) {
                     Files.createDirectories(dst.getParent());
                 }
-                if (Files.exists(dst)) {
-                    System.out.println("    Destination file already exists, overwriting");
-                    Files.delete(dst);
+                if (Files.isDirectory(dst)) {
+                    copyAll(src, dst);
+                } else {
+                    if (Files.exists(dst)) {
+                        System.out.println("    Destination file already exists, overwriting");
+                        Files.delete(dst);
+                    }
+                    Files.copy(src, dst);
                 }
-                Files.copy(src, dst);
             }
         } catch (IOException e) {
             throw new RuntimeException((e));
