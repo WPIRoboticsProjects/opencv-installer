@@ -18,15 +18,15 @@ ARM is not currently supported.
 
 Short name | Long name | Description | Argument
 ---|---|---|---
-| | `--help` | Prints the help text | 
-`-v` | `--version` | Sets the OpenCV version | The version in the format `x.x.x` e.g. `3.1.0`
-`-j` | `--java` | Flags the Java API for install. This does _not_ install JNI bindings
-`-jni` | `--jni` | Flags the JNI bindings for install
-`-h` | `--headers` | Flags the C++ headers for install
-`-n` | `--natives` | Flags the C++ native libraries for install
-| | `--all` | Installs all OpenCV artifacts
-| `-o` | `--overwrite` | Overwrite already installed files
-| | `--platform` | Download artifacts for a specific platform. They will be located in `./install` | The platform to download artifacts for
+| | `help` | Prints the help text | 
+`v` | `version` | Sets the OpenCV version | The version in the format `x.x.x` e.g. `3.1.0`
+`j` | `java` | Flags the Java API for install. This does _not_ install JNI bindings
+`jni` | `jni` | Flags the JNI bindings for install
+`h` | `headers` | Flags the C++ headers for install
+`n` | `natives` | Flags the C++ native libraries for install
+| | `all` | Installs all OpenCV artifacts
+| `o` | `overwrite` | Overwrite already installed files
+| | `platform` | Download artifacts for a specific platform. They will be located in `./install` | The platform to download artifacts for
 
 #### Options for `platform`
 ```
@@ -39,5 +39,5 @@ linux64
 
 ## Usage
 ```
-java -jar opencv-installer --version <version> --platform <platform> --java --jni --headers --natives --no-overwrite
+java -jar opencv-installer --version <version> --platform <platform> --java --jni --headers --natives --overwrite
 ```
