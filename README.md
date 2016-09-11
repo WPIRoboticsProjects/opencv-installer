@@ -5,6 +5,8 @@ This assumes that the OpenCV artifacts are located in the FRC maven repository a
 
 For now, this is just a CLI app with no GUI.
 
+_Note: no OpenCV artifacts currently exist on the FRC maven repository. This project will **not** work until they have been deployed._
+
 ## Supported platforms
 This currently supports  
 
