@@ -3,7 +3,9 @@ Simple application to install OpenCV.
 
 This assumes that the OpenCV artifacts are located in the maven repository at `https://github.com/SamCarlberg/opencv-maven/raw/mvn-repo` or in the local maven repository.
 
-[Maven repo](https://github.com/SamCarlberg/opencv-maven/tree/mvn-repo)
+(Artifacts for this project are also available in the above repository)
+
+[Link to the maven repo](https://github.com/SamCarlberg/opencv-maven/tree/mvn-repo)
 
 For now, this is just a CLI app with no GUI.
 
