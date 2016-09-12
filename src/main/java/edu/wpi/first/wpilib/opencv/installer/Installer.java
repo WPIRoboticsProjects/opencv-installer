@@ -51,13 +51,6 @@ public class Installer {
     private static String openCvVersion = "";
     private static String version = "";
 
-    private enum ArtifactType {
-        JAVA, // This one has special cases because the jar isn't packaged, so unzipping it would just output a ton of class files
-        JNI,
-        HEADERS,
-        NATIVES
-    }
-
 
     /**
      * Main entry point.
@@ -87,7 +80,7 @@ public class Installer {
         if (parsedArgs.hasOption("platform")) {
             setPlatform(Platform.valueOf(parsedArgs.getOptionValue("platform")));
         }
-        setVersion(parsedArgs.getOptionValue("version"));
+        setOpenCvVersion(parsedArgs.getOptionValue("version"));
         overwrite = parsedArgs.hasOption("overwrite");
         System.out.println("Installing specified OpenCV components");
         if (parsedArgs.hasOption("java") || parsedArgs.hasOption("all")) {
@@ -127,13 +120,22 @@ public class Installer {
      *
      * @param v the version of OpenCV to install
      */
-    public static void setVersion(String v) {
+    public static void setOpenCvVersion(String v) {
         openCvVersion = v;
         calculateVersion();
     }
 
     private static void calculateVersion() {
         version = platform + "-" + openCvVersion;
+    }
+
+    /**
+     * Gets the version of OpenCV being installed.
+     *
+     * @return the version of OpenCV being installed
+     */
+    public static String getOpenCvVersion() {
+        return openCvVersion;
     }
 
     /**
@@ -177,6 +179,12 @@ public class Installer {
     }
 
     private static void install(ArtifactType type) {
+        if (!overridePlatform && InstallChecker.isInstalled(type, openCvVersion)) {
+            System.out.println("Artifacts for the version " + openCvVersion + " " + type.getArtifactName() + " have already been installed!");
+            if (!overwrite) {
+                return;
+            }
+        }
         try {
             String artifactId;
             String v = version;
@@ -231,6 +239,7 @@ public class Installer {
                 unzipped = dst.getParent();
             }
             copyAll(unzipped, Paths.get(installLocation));
+            InstallChecker.registerSuccessfulInstall(type, openCvVersion);
         } catch (Exception e) {
             e.printStackTrace(System.out);
         }
@@ -252,6 +261,7 @@ public class Installer {
      * Unzips the given zip file
      *
      * @param zipFile the file to unzip
+     *
      * @return the directory that the file was unzipped into
      */
     private static Path unzip(File zipFile) {
@@ -282,6 +292,7 @@ public class Installer {
      *
      * @param sourceDir the directory holding the files to copy
      * @param dstDir    the directory to copy the files into
+     *
      * @throws IOException if the source directory is unreadable
      */
     private static void copyAll(Path sourceDir, Path dstDir) throws IOException {
