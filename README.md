@@ -5,8 +5,6 @@ This assumes that the OpenCV artifacts are located in the FRC maven repository a
 
 For now, this is just a CLI app with no GUI.
 
-_Note: no OpenCV artifacts currently exist on the FRC maven repository. This project will **not** work until they have been deployed._
-
 ## Supported platforms
 This currently supports  
 
@@ -15,6 +13,19 @@ This currently supports
 - Linux (32- and 64-bit)  
 
 ARM is not currently supported.
+
+### Windows notes
+
+This doesn't work on Windows. At all. JNI and native binaries need to be built and the install paths need to be figured out.
+
+### Linux notes
+
+JNI and native bindings will be installed in `/usr/local/lib` and the headers will be installed in `/usr/local/include`. If you don't have write access to these folders, you can run the installer with 
+
+`sudo java -Duser.home=$HOME -jar ...`
+
+Make sure that `/usr/local/lib` is on `LD_LIBRARY_PATH` or the JNI bindings won't be loaded by the JVM. 
+
 
 ## Command line arguments
 
