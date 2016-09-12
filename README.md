@@ -58,3 +58,65 @@ linux64
 ```
 java -jar opencv-installer --version <version> --platform <platform> --java --jni --headers --natives --overwrite
 ```
+
+## Using the installer in Gradle build scripts
+
+```groovy
+buildscript {
+  repositories {
+    maven {
+      url 'https://github.com/SamCarlberg/opencv-maven/raw/mvn-repo'
+    }
+  }
+  dependencies {
+    classpath group: 'edu.wpi.first.wpilib.opencv', name: 'opencv-installer', version: '+'
+  }
+}
+
+import edu.wpi.first.wpilib.opencv.installer.PlatformDetector
+
+def openCvPlatform = PlatformDetector.getPlatform()
+def openCvVersion = "3.1.0"
+
+dependencies {
+  compile group: 'org.opencv', name: 'opencv-java', version: openCvVersion
+  runtime group: 'org.opencv', name: 'opencv-jni', version: "${openCvPlatform}-${openCvVersion}"
+  ...
+}
+```
+
+## Using the installer as Java library
+
+First, add
+
+```groovy
+repositories {
+  maven {
+    url 'https://github.com/SamCarlberg/opencv-maven/raw/mvn-repo'
+  }
+}
+dependencies {
+  compile group: 'edu.wpi.first.wpilib.opencv', name: 'opencv-installer', version: '+'
+}
+```
+
+to your `build.gradle` file.
+
+Then to make sure that OpenCV is installed prior to using any OpenCV code:
+
+```java
+import edu.wpi.first.wpilib.opencv.installer.Installer;
+import org.opencv.core.Core;
+
+class Main {
+
+  static {
+    Installer.setVersion(Core.VERSION);
+    Installer.installJni();
+    System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+  }
+
+}
+```
+
+This will install OpenCV on the current system if the JNI bindings are available for it. If there aren't any JNI bindings, a `FileNotFoundException` will be thrown by the call to `Installer.installJni()` (you may wrap this in a `try-catch` block if you want to do something with this exception, such as logging it)
