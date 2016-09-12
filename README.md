@@ -119,4 +119,4 @@ class Main {
 }
 ```
 
-This will install OpenCV on the current system if the JNI bindings are available for it. If there aren't any JNI bindings, a `FileNotFoundException` will be thrown by the call to `Installer.installJni()` (you may wrap this in a `try-catch` block if you want to do something with this exception, such as logging it)
+This will install OpenCV on the current system if the JNI bindings are available for it. If there aren't any JNI bindings, an `IOException` will be thrown by the call to `Installer.installJni()` (you may wrap this in a `try-catch` block if you want to do something with this exception, such as logging it)
