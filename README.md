@@ -111,7 +111,7 @@ import org.opencv.core.Core;
 class Main {
 
   static {
-    Installer.setVersion(Core.VERSION);
+    Installer.setOpenCvVersion(Core.VERSION);
     Installer.installJni();
     System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
   }
