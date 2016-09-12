@@ -44,7 +44,7 @@ public enum Platform {
      */
     linux32(
             "",
-            "usr/local",
+            "usr/local/lib",
             "/usr/local/include",
             "/usr/local/lib"
     ),
@@ -53,7 +53,7 @@ public enum Platform {
      */
     linux64(
             "",
-            "/usr/local",
+            "/usr/local/lib",
             "/usr/local/include",
             "/usr/local/lib"
     );
