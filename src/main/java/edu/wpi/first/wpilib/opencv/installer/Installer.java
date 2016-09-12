@@ -239,7 +239,9 @@ public class Installer {
                 unzipped = dst.getParent();
             }
             copyAll(unzipped, Paths.get(installLocation));
-            InstallChecker.registerSuccessfulInstall(type, openCvVersion);
+            if (!overridePlatform) {
+                InstallChecker.registerSuccessfulInstall(type, openCvVersion);
+            }
         } catch (Exception e) {
             e.printStackTrace(System.out);
         }
