@@ -58,10 +58,38 @@ public class Installer {
     public static void main(String[] args) throws ParseException {
         CommandLineParser p = new DefaultParser();
         Options options = new Options() {{
-            addOption("j", "java", false, "Install the Java API jar in the working directory");
-            addOption("jni", "jni", false, "Install the JNI bindings for this operating system in " + platform.getJniInstallLocation());
-            addOption("h", "headers", false, "Install the C++ headers in " + platform.getHeadersInstallLocation());
-            addOption("n", "natives", false, "Install the C++ native libraries in " + platform.getNativesInstallLocation());
+            addOption(Option.builder("j")
+                    .longOpt("java")
+                    .optionalArg(true)
+                    .numberOfArgs(1)
+                    .argName("install-path")
+                    .desc("Install the OpenCV Java library")
+                    .build()
+            );
+            addOption(Option.builder("jni")
+                    .longOpt("jni")
+                    .optionalArg(true)
+                    .numberOfArgs(1)
+                    .argName("install-path")
+                    .desc("Install the OpenCV JNI bindings")
+                    .build()
+            );
+            addOption(Option.builder("h")
+                    .longOpt("headers")
+                    .optionalArg(true)
+                    .numberOfArgs(1)
+                    .argName("install-path")
+                    .desc("Install the OpenCV C++ headers")
+                    .build()
+            );
+            addOption(Option.builder("n")
+                    .longOpt("natives")
+                    .optionalArg(true)
+                    .numberOfArgs(1)
+                    .argName("install-path")
+                    .desc("Install the OpenCV native libraries")
+                    .build()
+            );
             addOption("help", "help", false, "Prints this help message");
             addOption("a", "all", false, "Installs all artifacts");
             addOption("v", "version", true, "Set the version of OpenCV to install");
@@ -85,28 +113,28 @@ public class Installer {
         System.out.println("Installing specified OpenCV components");
         if (parsedArgs.hasOption("java") || parsedArgs.hasOption("all")) {
             try {
-                installJava();
+                installJava(parsedArgs.getOptionValue("java", platform.getJavaInstallLocation()));
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
         if (parsedArgs.hasOption("jni") || parsedArgs.hasOption("all")) {
             try {
-                installJni();
+                installJni(parsedArgs.getOptionValue("jni", platform.getJniInstallLocation()));
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
         if (parsedArgs.hasOption("headers") || parsedArgs.hasOption("all")) {
             try {
-                installHeaders();
+                installHeaders(parsedArgs.getOptionValue("headers", platform.getHeadersInstallLocation()));
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
         if (parsedArgs.hasOption("natives") || parsedArgs.hasOption("all")) {
             try {
-                installNatives();
+                installNatives(parsedArgs.getOptionValue("natives", platform.getNativesInstallLocation()));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -157,45 +185,49 @@ public class Installer {
     /**
      * Downloads the Java API jar.
      */
-    public static void installJava() throws IOException {
+    public static void installJava(String location) throws IOException {
         System.out.println("====================");
-        System.out.println("Installing Java");
+        System.out.println("Installing Java to " + location);
         System.out.println("====================");
-        install(ArtifactType.JAVA);
+        install(ArtifactType.JAVA, location);
     }
 
     /**
      * Installs the JNI bindings.
      */
-    public static void installJni() throws IOException {
+    public static void installJni(String location) throws IOException {
         System.out.println("====================");
-        System.out.println("Installing JNI");
+        System.out.println("Installing JNI to " + location);
         System.out.println("====================");
-        install(ArtifactType.JNI);
+        install(ArtifactType.JNI, location);
     }
 
     /**
      * Installs the C++ headers.
      */
-    public static void installHeaders() throws IOException {
+    public static void installHeaders(String location) throws IOException {
         System.out.println("====================");
-        System.out.println("Installing headers");
+        System.out.println("Installing headers to " + location);
         System.out.println("====================");
-        install(ArtifactType.HEADERS);
+        install(ArtifactType.HEADERS, location);
     }
 
     /**
      * Installs the C++ native libraries.
      */
-    public static void installNatives() throws IOException {
+    public static void installNatives(String location) throws IOException {
         System.out.println("====================");
-        System.out.println("Installing natives");
+        System.out.println("Installing natives to " + location);
         System.out.println("====================");
-        install(ArtifactType.NATIVES);
+        install(ArtifactType.NATIVES, location);
     }
 
-    private static void install(ArtifactType type) throws IOException {
-        if (!overridePlatform && InstallChecker.isInstalled(type, openCvVersion)) {
+    private static void install(ArtifactType type, String location) throws IOException {
+        if (!Paths.get(location).isAbsolute()) {
+            // Force location to be an absolute path
+            location = Paths.get(location).toAbsolutePath().toString();
+        }
+        if (!overridePlatform && InstallChecker.isInstalled(type, location, openCvVersion)) {
             System.out.println("Artifacts for the version " + openCvVersion + " " + type.getArtifactName() + " have already been installed!");
             if (!overwrite) {
                 return;
@@ -211,20 +243,20 @@ public class Installer {
             case JAVA:
                 artifactId = javaJarName;
                 v = openCvVersion;
-                installLocation += platform.getJavaInstallLocation();
+                installLocation += location;
                 break;
             case JNI:
                 artifactId = jniName;
-                installLocation += platform.getJniInstallLocation();
+                installLocation += location;
                 break;
             case HEADERS:
                 artifactId = headersName;
                 v = openCvVersion;
-                installLocation += platform.getHeadersInstallLocation();
+                installLocation += location;
                 break;
             case NATIVES:
                 artifactId = nativesName;
-                installLocation += platform.getNativesInstallLocation();
+                installLocation += location;
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown artifact type: " + type);
@@ -255,7 +287,7 @@ public class Installer {
         }
         copyAll(unzipped, Paths.get(installLocation));
         if (!overridePlatform) {
-            InstallChecker.registerSuccessfulInstall(type, openCvVersion);
+            InstallChecker.registerSuccessfulInstall(type, location, openCvVersion);
         }
     }
 
