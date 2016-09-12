@@ -84,16 +84,32 @@ public class Installer {
         overwrite = parsedArgs.hasOption("overwrite");
         System.out.println("Installing specified OpenCV components");
         if (parsedArgs.hasOption("java") || parsedArgs.hasOption("all")) {
-            installJava();
+            try {
+                installJava();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         if (parsedArgs.hasOption("jni") || parsedArgs.hasOption("all")) {
-            installJni();
+            try {
+                installJni();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         if (parsedArgs.hasOption("headers") || parsedArgs.hasOption("all")) {
-            installHeaders();
+            try {
+                installHeaders();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         if (parsedArgs.hasOption("natives") || parsedArgs.hasOption("all")) {
-            installNatives();
+            try {
+                installNatives();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
         System.out.println("==========================");
@@ -141,7 +157,7 @@ public class Installer {
     /**
      * Downloads the Java API jar.
      */
-    public static void installJava() {
+    public static void installJava() throws IOException {
         System.out.println("====================");
         System.out.println("Installing Java");
         System.out.println("====================");
@@ -151,7 +167,7 @@ public class Installer {
     /**
      * Installs the JNI bindings.
      */
-    public static void installJni() {
+    public static void installJni() throws IOException {
         System.out.println("====================");
         System.out.println("Installing JNI");
         System.out.println("====================");
@@ -161,7 +177,7 @@ public class Installer {
     /**
      * Installs the C++ headers.
      */
-    public static void installHeaders() {
+    public static void installHeaders() throws IOException {
         System.out.println("====================");
         System.out.println("Installing headers");
         System.out.println("====================");
@@ -171,79 +187,75 @@ public class Installer {
     /**
      * Installs the C++ native libraries.
      */
-    public static void installNatives() {
+    public static void installNatives() throws IOException {
         System.out.println("====================");
         System.out.println("Installing natives");
         System.out.println("====================");
         install(ArtifactType.NATIVES);
     }
 
-    private static void install(ArtifactType type) {
+    private static void install(ArtifactType type) throws IOException {
         if (!overridePlatform && InstallChecker.isInstalled(type, openCvVersion)) {
             System.out.println("Artifacts for the version " + openCvVersion + " " + type.getArtifactName() + " have already been installed!");
             if (!overwrite) {
                 return;
             }
         }
-        try {
-            String artifactId;
-            String v = version;
-            String installLocation = "";
-            if (overridePlatform) {
-                installLocation = "install";
-            }
-            switch (type) {
-                case JAVA:
-                    artifactId = javaJarName;
-                    v = openCvVersion;
-                    installLocation += platform.getJavaInstallLocation();
-                    break;
-                case JNI:
-                    artifactId = jniName;
-                    installLocation += platform.getJniInstallLocation();
-                    break;
-                case HEADERS:
-                    artifactId = headersName;
-                    v = openCvVersion;
-                    installLocation += platform.getHeadersInstallLocation();
-                    break;
-                case NATIVES:
-                    artifactId = nativesName;
-                    installLocation += platform.getNativesInstallLocation();
-                    break;
-                default:
-                    throw new UnsupportedOperationException("Unknown artifact type: " + type);
-            }
-            URL remote = resolveRemote(artifactId, v);
-            File local = resolveLocal(artifactId, v);
-            File source;
-            if (!local.exists()) {
-                copyToMavenLocal(githubRepo, groupId, artifactId, v);
-            }
-            if (local.exists()) {
-                System.out.println("Using local file at " + local.toURI());
-                source = local;
-            } else {
-                throw new NoSuchFileException("Could not find artifacts. Looked in:\n" +
-                        "        " + remote + "\n" +
-                        "        " + local.toURI());
-            }
-            Path unzipped;
-            if (type != ArtifactType.JAVA) {
-                unzipped = unzip(source);
-            } else {
-                Path dst = unzippedDir.resolve(artifactId + '-' + v).resolve(artifactId + '-' + v + ".jar");
-                Files.createDirectories(dst.getParent());
-                Files.copy(source.toPath(), dst);
-                System.out.println("  Downloaded Java to " + dst);
-                unzipped = dst.getParent();
-            }
-            copyAll(unzipped, Paths.get(installLocation));
-            if (!overridePlatform) {
-                InstallChecker.registerSuccessfulInstall(type, openCvVersion);
-            }
-        } catch (Exception e) {
-            e.printStackTrace(System.out);
+        String artifactId;
+        String v = version;
+        String installLocation = "";
+        if (overridePlatform) {
+            installLocation = "install";
+        }
+        switch (type) {
+            case JAVA:
+                artifactId = javaJarName;
+                v = openCvVersion;
+                installLocation += platform.getJavaInstallLocation();
+                break;
+            case JNI:
+                artifactId = jniName;
+                installLocation += platform.getJniInstallLocation();
+                break;
+            case HEADERS:
+                artifactId = headersName;
+                v = openCvVersion;
+                installLocation += platform.getHeadersInstallLocation();
+                break;
+            case NATIVES:
+                artifactId = nativesName;
+                installLocation += platform.getNativesInstallLocation();
+                break;
+            default:
+                throw new UnsupportedOperationException("Unknown artifact type: " + type);
+        }
+        URL remote = resolveRemote(artifactId, v);
+        File local = resolveLocal(artifactId, v);
+        File source;
+        if (!local.exists()) {
+            copyToMavenLocal(githubRepo, groupId, artifactId, v);
+        }
+        if (local.exists()) {
+            System.out.println("Using local file at " + local.toURI());
+            source = local;
+        } else {
+            throw new NoSuchFileException("Could not find artifacts. Looked in:\n" +
+                    "        " + remote + "\n" +
+                    "        " + local.toURI());
+        }
+        Path unzipped;
+        if (type != ArtifactType.JAVA) {
+            unzipped = unzip(source);
+        } else {
+            Path dst = unzippedDir.resolve(artifactId + '-' + v).resolve(artifactId + '-' + v + ".jar");
+            Files.createDirectories(dst.getParent());
+            Files.copy(source.toPath(), dst);
+            System.out.println("  Downloaded Java to " + dst);
+            unzipped = dst.getParent();
+        }
+        copyAll(unzipped, Paths.get(installLocation));
+        if (!overridePlatform) {
+            InstallChecker.registerSuccessfulInstall(type, openCvVersion);
         }
     }
 
