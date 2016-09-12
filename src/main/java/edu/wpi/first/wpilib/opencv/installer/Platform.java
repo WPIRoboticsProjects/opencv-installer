@@ -63,25 +63,25 @@ public enum Platform {
     }
 
     /**
-     * The location of installs for the Java library.
+     * The default location of installs for the Java library.
      */
-    private final String javaInstallLocation;
+    private final String defaultJavaInstallLocation;
 
     /**
-     * The location of installs for the JNI bindings. This should be in a location that is on {@code java.library.path}
-     * by default.
+     * The default location of installs for the JNI bindings. This should be in a location that is on
+     * {@code java.library.path} by default.
      */
-    private final String jniInstallLocation;
+    private final String defaultJniInstallLocation;
 
     /**
-     * The location of installs for the C++ header files.
+     * The default location of installs for the C++ header files.
      */
-    private final String headersInstallLocation;
+    private final String defaultHeadersInstallLocation;
 
     /**
-     * The location of installs for the native C++ libraries. This should be a default location on the path
+     * The default location of installs for the native C++ libraries. This should be a default location on the path
      * (e.g. {@code /usr/local/}).
      */
-    private final String nativesInstallLocation;
+    private final String defaultNativesInstallLocation;
 
 }

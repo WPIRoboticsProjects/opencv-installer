@@ -106,13 +106,14 @@ Then to make sure that OpenCV is installed prior to using any OpenCV code:
 
 ```java
 import edu.wpi.first.wpilib.opencv.installer.Installer;
+import edu.wpi.first.wpilib.opencv.installer.PlatformDetector;
 import org.opencv.core.Core;
 
 class Main {
 
   static {
     Installer.setOpenCvVersion(Core.VERSION);
-    Installer.installJni();
+    Installer.installJni(PlatformDetector.getPlatform().getDefaultJniInstallLocation());
     System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
   }
 

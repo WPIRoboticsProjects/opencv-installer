@@ -113,28 +113,28 @@ public class Installer {
         System.out.println("Installing specified OpenCV components");
         if (parsedArgs.hasOption("java") || parsedArgs.hasOption("all")) {
             try {
-                installJava(parsedArgs.getOptionValue("java", platform.getJavaInstallLocation()));
+                installJava(parsedArgs.getOptionValue("java", platform.getDefaultJavaInstallLocation()));
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
         if (parsedArgs.hasOption("jni") || parsedArgs.hasOption("all")) {
             try {
-                installJni(parsedArgs.getOptionValue("jni", platform.getJniInstallLocation()));
+                installJni(parsedArgs.getOptionValue("jni", platform.getDefaultJniInstallLocation()));
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
         if (parsedArgs.hasOption("headers") || parsedArgs.hasOption("all")) {
             try {
-                installHeaders(parsedArgs.getOptionValue("headers", platform.getHeadersInstallLocation()));
+                installHeaders(parsedArgs.getOptionValue("headers", platform.getDefaultHeadersInstallLocation()));
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
         if (parsedArgs.hasOption("natives") || parsedArgs.hasOption("all")) {
             try {
-                installNatives(parsedArgs.getOptionValue("natives", platform.getNativesInstallLocation()));
+                installNatives(parsedArgs.getOptionValue("natives", platform.getDefaultNativesInstallLocation()));
             } catch (IOException e) {
                 e.printStackTrace();
             }
