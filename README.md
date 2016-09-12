@@ -1,11 +1,11 @@
 # opencv-installer
 Simple application to install OpenCV.
 
-This assumes that the OpenCV artifacts are located in the maven repository at `https://github.com/SamCarlberg/opencv-maven/raw/mvn-repo` or in the local maven repository.
+This assumes that the OpenCV artifacts are located in the maven repository at `https://github.com/WPIRoboticsProjects/opencv-maven/raw/mvn-repo` or in the local maven repository.
 
 (Artifacts for this project are also available in the above repository)
 
-[Link to the maven repo](https://github.com/SamCarlberg/opencv-maven/tree/mvn-repo)
+[Link to the maven repo](https://github.com/WPIRoboticsProjects/opencv-maven/tree/mvn-repo)
 
 For now, this is just a CLI app with no GUI.
 
@@ -65,7 +65,7 @@ java -jar opencv-installer --version <version> --platform <platform> --java --jn
 buildscript {
   repositories {
     maven {
-      url 'https://github.com/SamCarlberg/opencv-maven/raw/mvn-repo'
+      url 'https://github.com/WPIRoboticsProjects/opencv-maven/raw/mvn-repo'
     }
   }
   dependencies {
@@ -92,7 +92,7 @@ First, add
 ```groovy
 repositories {
   maven {
-    url 'https://github.com/SamCarlberg/opencv-maven/raw/mvn-repo'
+    url 'https://github.com/WPIRoboticsProjects/opencv-maven/raw/mvn-repo'
   }
 }
 dependencies {
