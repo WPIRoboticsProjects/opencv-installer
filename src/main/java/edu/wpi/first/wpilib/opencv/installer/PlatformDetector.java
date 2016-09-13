@@ -54,7 +54,7 @@ public class PlatformDetector {
         String archName = System.getProperty("os.arch");
         if (archName.matches("^(i386|x86)$")) {
             arch = "32";
-        } else if (archName.equals("x86_64")) {
+        } else if (archName.matches("$(x86_64|amd64)$")) {
             arch = "64";
         } else {
             throw new UnsupportedOperatingSystemError("Unsupported architecture: " + archName);
