@@ -1,5 +1,6 @@
 package edu.wpi.first.wpilib.opencv.installer;
 
+import edu.wpi.first.wpilib.opencv.installer.platform.Platform;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
@@ -26,7 +27,7 @@ public class PlatformDetector {
         }
         String osName = System.getProperty("os.name").toLowerCase();
         if (osName.contains("windows")) {
-            os = "win";
+            os = "windows";
         } else if (osName.contains("macos") || osName.contains("mac os")) {
             os = "osx";
         } else if (osName.contains("linux")) {
@@ -40,8 +41,10 @@ public class PlatformDetector {
     /**
      * Gets the operating system architecture as one of:
      * <ul>
-     * <li>"32"</li>
-     * <li>"64"</li>
+     * <li>"x86"</li>
+     * <li>"x86_64"</li>
+     * <li>"arm"</li>
+     * <li>"armhf"</li>
      * </ul>
      *
      * @return the operating system architecture
@@ -53,9 +56,13 @@ public class PlatformDetector {
         }
         String archName = System.getProperty("os.arch");
         if (archName.matches("^(i386|x86)$")) {
-            arch = "32";
+            arch = "x86";
         } else if (archName.matches("$(x86_64|amd64)$")) {
-            arch = "64";
+            arch = "x86_64";
+        } else if (archName.matches("$(arm)^")) {
+            arch = "arm";
+        } else if (archName.matches("$(armhf)^")) {
+            arch = "armhf";
         } else {
             throw new UnsupportedOperatingSystemError("Unsupported architecture: " + archName);
         }
@@ -71,33 +78,11 @@ public class PlatformDetector {
         if (platform != null) {
             return platform;
         }
-        getOs();
-        getArch();
-        switch (os) {
-            case "win":
-                switch (arch) {
-                    case "32":
-                        platform = Platform.win32;
-                        break;
-                    case "64":
-                        platform = Platform.win64;
-                        break;
-                }
-            case "osx":
-                platform = Platform.osx;
-                break;
-            case "linux":
-                switch (arch) {
-                    case "32":
-                        platform = Platform.linux32;
-                        break;
-                    case "64":
-                        platform = Platform.linux64;
-                        break;
-                }
-        }
-        if (platform == null) {
-            throw new UnsupportedOperatingSystemError(os + arch);
+        final String platName = getOs() + "-" + getArch();
+        try {
+            platform = Platform.valueOf(platName);
+        } catch (IllegalArgumentException unsupported) {
+            throw new UnsupportedOperatingSystemError(unsupported.getMessage());
         }
         return platform;
     }

@@ -1,7 +1,15 @@
 package edu.wpi.first.wpilib.opencv.installer;
 
+import edu.wpi.first.wpilib.opencv.installer.platform.Platform;
 import lombok.experimental.UtilityClass;
-import org.apache.commons.cli.*;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.MissingOptionException;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -113,28 +121,28 @@ public class Installer {
         System.out.println("Installing specified OpenCV components");
         if (parsedArgs.hasOption("java") || parsedArgs.hasOption("all")) {
             try {
-                installJava(parsedArgs.getOptionValue("java", platform.getDefaultJavaInstallLocation()));
+                installJava(parsedArgs.getOptionValue("java", platform.defaultJavaLocation()));
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
         if (parsedArgs.hasOption("jni") || parsedArgs.hasOption("all")) {
             try {
-                installJni(parsedArgs.getOptionValue("jni", platform.getDefaultJniInstallLocation()));
+                installJni(parsedArgs.getOptionValue("jni", platform.defaultJniLocation()));
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
         if (parsedArgs.hasOption("headers") || parsedArgs.hasOption("all")) {
             try {
-                installHeaders(parsedArgs.getOptionValue("headers", platform.getDefaultHeadersInstallLocation()));
+                installHeaders(parsedArgs.getOptionValue("headers", platform.defaultHeadersLocation()));
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
         if (parsedArgs.hasOption("natives") || parsedArgs.hasOption("all")) {
             try {
-                installNatives(parsedArgs.getOptionValue("natives", platform.getDefaultNativesInstallLocation()));
+                installNatives(parsedArgs.getOptionValue("natives", platform.defaultNativesLocation()));
             } catch (IOException e) {
                 e.printStackTrace();
             }
