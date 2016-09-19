@@ -81,7 +81,7 @@ public class Installer {
     }
 
     private static void calculateVersion() {
-        version = platform + "-" + openCvVersion;
+        version = platform.name() + "-" + openCvVersion;
     }
 
     /**
