@@ -5,7 +5,7 @@ apply plugin: 'java'
 apply plugin: 'application'
 
 sourceCompatibility = 1.8
-mainClassName = 'edu.wpi.first.wpilib.opencv.installer.Installer'
+mainClassName = 'edu.wpi.first.wpilib.opencv.installer.MainCLI'
 
 repositories {
     mavenCentral()

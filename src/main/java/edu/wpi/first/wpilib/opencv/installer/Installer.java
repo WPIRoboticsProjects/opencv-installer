@@ -2,14 +2,6 @@ package edu.wpi.first.wpilib.opencv.installer;
 
 import edu.wpi.first.wpilib.opencv.installer.platform.Platform;
 import lombok.experimental.UtilityClass;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.MissingOptionException;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -59,99 +51,6 @@ public class Installer {
     private static String openCvVersion = "";
     private static String version = "";
 
-
-    /**
-     * Main entry point.
-     */
-    public static void main(String[] args) throws ParseException {
-        CommandLineParser p = new DefaultParser();
-        Options options = new Options() {{
-            addOption(Option.builder("j")
-                    .longOpt("java")
-                    .optionalArg(true)
-                    .numberOfArgs(1)
-                    .argName("install-path")
-                    .desc("Install the OpenCV Java library")
-                    .build()
-            );
-            addOption(Option.builder("jni")
-                    .longOpt("jni")
-                    .optionalArg(true)
-                    .numberOfArgs(1)
-                    .argName("install-path")
-                    .desc("Install the OpenCV JNI bindings")
-                    .build()
-            );
-            addOption(Option.builder("h")
-                    .longOpt("headers")
-                    .optionalArg(true)
-                    .numberOfArgs(1)
-                    .argName("install-path")
-                    .desc("Install the OpenCV C++ headers")
-                    .build()
-            );
-            addOption(Option.builder("n")
-                    .longOpt("natives")
-                    .optionalArg(true)
-                    .numberOfArgs(1)
-                    .argName("install-path")
-                    .desc("Install the OpenCV native libraries")
-                    .build()
-            );
-            addOption("help", "help", false, "Prints this help message");
-            addOption("a", "all", false, "Installs all artifacts");
-            addOption("v", "version", true, "Set the version of OpenCV to install");
-            addOption("o", "overwrite", false, "Overwrite existing files when installing");
-            addOption(null, "platform", true, "Install artifacts for a specific platform");
-        }};
-        CommandLine parsedArgs = p.parse(options, args);
-        if (parsedArgs.hasOption("help")) {
-            HelpFormatter hf = new HelpFormatter();
-            hf.printHelp("opencv-installer", options);
-            return;
-        }
-        if (!parsedArgs.hasOption("version")) {
-            throw new MissingOptionException("-v <version>");
-        }
-        if (parsedArgs.hasOption("platform")) {
-            setPlatform(Platform.valueOf(parsedArgs.getOptionValue("platform")));
-        }
-        setOpenCvVersion(parsedArgs.getOptionValue("version"));
-        overwrite = parsedArgs.hasOption("overwrite");
-        System.out.println("Installing specified OpenCV components");
-        if (parsedArgs.hasOption("java") || parsedArgs.hasOption("all")) {
-            try {
-                installJava(parsedArgs.getOptionValue("java", platform.defaultJavaLocation()));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        if (parsedArgs.hasOption("jni") || parsedArgs.hasOption("all")) {
-            try {
-                installJni(parsedArgs.getOptionValue("jni", platform.defaultJniLocation()));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        if (parsedArgs.hasOption("headers") || parsedArgs.hasOption("all")) {
-            try {
-                installHeaders(parsedArgs.getOptionValue("headers", platform.defaultHeadersLocation()));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        if (parsedArgs.hasOption("natives") || parsedArgs.hasOption("all")) {
-            try {
-                installNatives(parsedArgs.getOptionValue("natives", platform.defaultNativesLocation()));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        System.out.println("==========================");
-        System.out.println("Finished installing OpenCV");
-    }
-
     /**
      * Sets a specific platform to install. Artifacts will be downloaded into the working directory and will need to be
      * manually installed.
@@ -165,6 +64,10 @@ public class Installer {
         platform = p;
         calculateVersion();
         overridePlatform = true;
+    }
+
+    public static Platform getPlatform() {
+        return platform;
     }
 
     /**
@@ -188,6 +91,13 @@ public class Installer {
      */
     public static String getOpenCvVersion() {
         return openCvVersion;
+    }
+
+    /**
+     * Overwrites existing files when installing.
+     */
+    public static void overwriteExistingFiles() {
+        overwrite = true;
     }
 
     /**

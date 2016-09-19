@@ -57,11 +57,11 @@ public class PlatformDetector {
         String archName = System.getProperty("os.arch");
         if (archName.matches("^(i386|x86)$")) {
             arch = "x86";
-        } else if (archName.matches("$(x86_64|amd64)$")) {
+        } else if (archName.matches("^(x86_64|amd64)$")) {
             arch = "x86_64";
-        } else if (archName.matches("$(arm)^")) {
+        } else if (archName.matches("^(arm)$")) {
             arch = "arm";
-        } else if (archName.matches("$(armhf)^")) {
+        } else if (archName.matches("^(armhf)$")) {
             arch = "armhf";
         } else {
             throw new UnsupportedOperatingSystemError("Unsupported architecture: " + archName);
