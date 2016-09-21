@@ -25,8 +25,7 @@ import java.util.zip.ZipInputStream;
 public class Installer {
 
     private static final String userHome = System.getProperty("user.home");
-    private static final String wpilibUrl = "http://first.wpi.edu/FRC/roborio/maven";
-    private static final String githubRepo = "https://github.com/SamCarlberg/opencv-maven/raw/mvn-repo";
+    private static final String mavenUrl = "http://first.wpi.edu/FRC/roborio/maven/development";
     private static final String mavenLocal = userHome + "/.m2/repository";
     private static final Path tmpDir;
     private static final Path unzippedDir;
@@ -183,7 +182,7 @@ public class Installer {
         File local = resolveLocal(artifactId, v);
         File source;
         if (!local.exists()) {
-            copyToMavenLocal(githubRepo, groupId, artifactId, v);
+            copyToMavenLocal(mavenUrl, groupId, artifactId, v);
         }
         if (local.exists()) {
             System.out.println("Using local file at " + local.toURI());
@@ -210,7 +209,7 @@ public class Installer {
     }
 
     private static URL resolveRemote(String artifactId, String version) throws MalformedURLException {
-        return new URL(resolveRelative(githubRepo, artifactId, version));
+        return new URL(resolveRelative(mavenUrl, artifactId, version));
     }
 
     private static File resolveLocal(String artifactId, String version) {
@@ -293,7 +292,7 @@ public class Installer {
      * @return the path to the copied jar
      */
     private static Path copyToMavenLocal(String repo, String groupId, String artifactId, String version) throws IOException {
-        String remoteDir = String.format("%s/%s/%s/%s/", repo, groupId.replace('.', '/'), artifactId, version);
+        String remoteDir = String.format("%s/%s/%s/%s/", repo, groupId.replace('.', '/'), artifactId, openCvVersion);
         String name = String.format("%s-%s", artifactId, version);
         String dstDir = remoteDir.replace(repo, mavenLocal);
         if (!Files.exists(Paths.get(dstDir))) {

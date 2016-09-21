@@ -16,7 +16,7 @@ public abstract class Windows implements Platform {
 
     @Override
     public String defaultJavaLocation() {
-        return "";
+        return OPENCV_DIR + "\\java";
     }
 
     @Override
