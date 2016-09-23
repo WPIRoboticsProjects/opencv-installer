@@ -48,7 +48,6 @@ public class Installer {
     private static final String headersName = "opencv-headers";
     private static final String nativesName = "opencv-natives";
     private static String openCvVersion = "";
-    private static String version = "";
 
     /**
      * Sets a specific platform to install. Artifacts will be downloaded into the working directory and will need to be
@@ -61,10 +60,15 @@ public class Installer {
      */
     public static void setPlatform(Platform p) {
         platform = p;
-        calculateVersion();
         overridePlatform = true;
     }
 
+    /**
+     * Gets the platform that artifacts will be installed for. This will return the platform that the installer is
+     * running on, unless it's been overridden by {@link #setPlatform(Platform)}.
+     *
+     * @return the current platform
+     */
     public static Platform getPlatform() {
         return platform;
     }
@@ -76,11 +80,6 @@ public class Installer {
      */
     public static void setOpenCvVersion(String v) {
         openCvVersion = v;
-        calculateVersion();
-    }
-
-    private static void calculateVersion() {
-        version = platform.name() + "-" + openCvVersion;
     }
 
     /**
@@ -151,38 +150,35 @@ public class Installer {
             }
         }
         String artifactId;
-        String v = version;
-        String installLocation = "";
+        String v = openCvVersion;
+        String classifier = null;
+        String installLocation = location;
         if (overridePlatform) {
-            installLocation = "install";
+            installLocation = "install/" + location;
         }
         switch (type) {
             case JAVA:
                 artifactId = javaJarName;
-                v = openCvVersion;
-                installLocation += location;
                 break;
             case JNI:
                 artifactId = jniName;
-                installLocation += location;
+                classifier = platform.name();
                 break;
             case HEADERS:
                 artifactId = headersName;
-                v = openCvVersion;
-                installLocation += location;
                 break;
             case NATIVES:
                 artifactId = nativesName;
-                installLocation += location;
+                classifier = platform.name();
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown artifact type: " + type);
         }
-        URL remote = resolveRemote(artifactId, v);
-        File local = resolveLocal(artifactId, v);
+        URL remote = resolveRemote(artifactId, v, classifier);
+        File local = resolveLocal(artifactId, v, classifier);
         File source;
         if (!local.exists()) {
-            copyToMavenLocal(mavenUrl, groupId, artifactId, v);
+            copyToMavenLocal(mavenUrl, artifactId, v, classifier);
         }
         if (local.exists()) {
             System.out.println("Using local file at " + local.toURI());
@@ -208,16 +204,22 @@ public class Installer {
         }
     }
 
-    private static URL resolveRemote(String artifactId, String version) throws MalformedURLException {
-        return new URL(resolveRelative(mavenUrl, artifactId, version));
+    private static URL resolveRemote(String artifactId, String version, String classifier) throws MalformedURLException {
+        return new URL(resolveRelative(mavenUrl, artifactId, version, classifier));
     }
 
-    private static File resolveLocal(String artifactId, String version) {
-        return new File(resolveRelative(mavenLocal, artifactId, version));
+    private static File resolveLocal(String artifactId, String version, String classifier) {
+        File local = new File(resolveRelative(mavenLocal, artifactId, version, classifier));
+        System.out.println("Local = " + local.getAbsolutePath());
+        return local;
     }
 
-    private static String resolveRelative(String repo, String artifactId, String version) {
-        return String.format("%s/%s/%s/%s/%s-%s.jar", repo, groupId.replace('.', '/'), artifactId, version, artifactId, version);
+    private static String resolveRelative(String repo, String artifactId, String version, String classifier) {
+        return String.format(
+                "%s/%s.jar",
+                resolveDir(repo, groupId, artifactId, version),
+                resolveFullArtifactName(artifactId, version, classifier)
+        );
     }
 
     /**
@@ -233,6 +235,10 @@ public class Installer {
             Files.createDirectories(dstDir);
             for (ZipEntry e = zis.getNextEntry(); e != null; e = zis.getNextEntry()) {
                 String fileName = e.getName();
+                if (fileName.contains("META-INF")) {
+                    // This stuff doesn't matter, don't bother extracting it
+                    continue;
+                }
                 System.out.println("  File: " + fileName);
                 Path dst = dstDir.resolve(fileName);
                 System.out.println("    Unzipping to " + dst);
@@ -271,7 +277,7 @@ public class Installer {
                 if (dst.getParent() != null && !Files.exists(dst.getParent())) {
                     Files.createDirectories(dst.getParent());
                 }
-                if (Files.isDirectory(dst)) {
+                if (Files.isDirectory(src)) {
                     copyAll(src, dst);
                 } else {
                     if (Files.exists(dst)) {
@@ -291,26 +297,44 @@ public class Installer {
      *
      * @return the path to the copied jar
      */
-    private static Path copyToMavenLocal(String repo, String groupId, String artifactId, String version) throws IOException {
-        String remoteDir = String.format("%s/%s/%s/%s/", repo, groupId.replace('.', '/'), artifactId, openCvVersion);
-        String name = String.format("%s-%s", artifactId, version);
+    private static Path copyToMavenLocal(String repo, String artifactId, String version, String classifier) throws IOException {
+        String remoteDir = resolveDir(repo, groupId, artifactId, version);
         String dstDir = remoteDir.replace(repo, mavenLocal);
         if (!Files.exists(Paths.get(dstDir))) {
             Files.createDirectories(Paths.get(dstDir));
         }
 
-        String jar = name + ".jar";
+        String jar = resolveFullArtifactName(artifactId, version, classifier) + ".jar";
         String jarPath = remoteDir + jar;
         System.out.println("Copying " + jarPath + " to the local maven repository");
         Files.deleteIfExists(Paths.get(dstDir, jar));
         Files.copy(new URL(jarPath).openStream(), Paths.get(dstDir, jar));
 
-        String pom = name + ".pom";
+        String pom =  String.format("%s-%s.pom", artifactId, version);
         String pomPath = remoteDir + pom;
         Files.deleteIfExists(Paths.get(dstDir, pom));
         Files.copy(new URL(pomPath).openStream(), Paths.get(dstDir, pom));
 
         return Paths.get(dstDir, jar);
+    }
+
+    public static String resolveDir(String repo, String group, String artifact, String version) {
+        return String.format(
+                "%s/%s/%s/%s",
+                repo,
+                group.replace('.', '/'),
+                artifact,
+                version
+        );
+    }
+
+    public static String resolveFullArtifactName(String artifact, String version, String classifier) {
+        return String.format(
+                "%s-%s%s",
+                artifact,
+                version,
+                classifier == null ? "" : "-" + classifier
+        );
     }
 
 }
