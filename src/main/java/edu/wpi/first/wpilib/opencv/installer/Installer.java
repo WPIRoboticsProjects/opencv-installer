@@ -305,13 +305,13 @@ public class Installer {
         }
 
         String jar = resolveFullArtifactName(artifactId, version, classifier) + ".jar";
-        String jarPath = remoteDir + jar;
+        String jarPath = remoteDir + '/' + jar;
         System.out.println("Copying " + jarPath + " to the local maven repository");
         Files.deleteIfExists(Paths.get(dstDir, jar));
         Files.copy(new URL(jarPath).openStream(), Paths.get(dstDir, jar));
 
         String pom =  String.format("%s-%s.pom", artifactId, version);
-        String pomPath = remoteDir + pom;
+        String pomPath = remoteDir + '/' + pom;
         Files.deleteIfExists(Paths.get(dstDir, pom));
         Files.copy(new URL(pomPath).openStream(), Paths.get(dstDir, pom));
 
