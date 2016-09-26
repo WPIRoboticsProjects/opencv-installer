@@ -1,6 +1,7 @@
 package edu.wpi.first.wpilib.opencv.installer;
 
 import edu.wpi.first.wpilib.opencv.installer.platform.Platform;
+
 import lombok.experimental.UtilityClass;
 
 import java.io.File;
@@ -143,12 +144,6 @@ public class Installer {
             // Force location to be an absolute path
             location = Paths.get(location).toAbsolutePath().toString();
         }
-        if (!overridePlatform && InstallChecker.isInstalled(type, location, openCvVersion)) {
-            System.out.println("Artifacts for the version " + openCvVersion + " " + type.getArtifactName() + " have already been installed!");
-            if (!overwrite) {
-                return;
-            }
-        }
         String artifactId;
         String v = openCvVersion;
         String classifier = null;
@@ -199,9 +194,6 @@ public class Installer {
             unzipped = dst.getParent();
         }
         copyAll(unzipped, Paths.get(installLocation));
-        if (!overridePlatform) {
-            InstallChecker.registerSuccessfulInstall(type, location, openCvVersion);
-        }
     }
 
     private static URL resolveRemote(String artifactId, String version, String classifier) throws MalformedURLException {
@@ -272,19 +264,21 @@ public class Installer {
 
     private static void unsafeCopy(Path src, Path dst) {
         try {
-            if (overwrite) {
+            if (dst.getParent() != null && !Files.exists(dst.getParent())) {
+                Files.createDirectories(dst.getParent());
+            }
+            if (Files.isDirectory(src)) {
+                copyAll(src, dst);
+            } else {
                 System.out.println("  Copying " + src.toAbsolutePath() + " to " + dst.toAbsolutePath());
-                if (dst.getParent() != null && !Files.exists(dst.getParent())) {
-                    Files.createDirectories(dst.getParent());
-                }
-                if (Files.isDirectory(src)) {
-                    copyAll(src, dst);
-                } else {
-                    if (Files.exists(dst)) {
-                        System.out.println("    Destination file already exists, overwriting");
-                        Files.delete(dst);
-                    }
+                if (Files.exists(dst) && overwrite) {
+                    System.out.println("    Destination file already exists, overwriting");
+                    Files.delete(dst);
                     Files.copy(src, dst);
+                } else if (!(Files.exists(dst))) {
+                    Files.copy(src, dst);
+                } else {
+                    System.out.println("    Destination file already exists, aborting copy");
                 }
             }
         } catch (IOException e) {
@@ -310,7 +304,7 @@ public class Installer {
         Files.deleteIfExists(Paths.get(dstDir, jar));
         Files.copy(new URL(jarPath).openStream(), Paths.get(dstDir, jar));
 
-        String pom =  String.format("%s-%s.pom", artifactId, version);
+        String pom = String.format("%s-%s.pom", artifactId, version);
         String pomPath = remoteDir + '/' + pom;
         Files.deleteIfExists(Paths.get(dstDir, pom));
         Files.copy(new URL(pomPath).openStream(), Paths.get(dstDir, pom));
