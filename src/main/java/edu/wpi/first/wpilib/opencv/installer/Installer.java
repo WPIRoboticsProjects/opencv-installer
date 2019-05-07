@@ -18,7 +18,7 @@ import java.util.zip.ZipInputStream;
 
 /**
  * A command line application that downloads and installs OpenCV. This assumes that the OpenCV artifacts will be
- * available on the FRC maven server at http://first.wpi.edu/FRC/roborio/maven or in the local maven repository.
+ * available on the FRC maven server at https://first.wpi.edu/FRC/roborio/maven or in the local maven repository.
  *
  * <p>Install locations are specified by the current {@link Platform}</p>
  */
@@ -26,7 +26,7 @@ import java.util.zip.ZipInputStream;
 public class Installer {
 
     private static final String userHome = System.getProperty("user.home");
-    private static final String mavenUrl = "http://first.wpi.edu/FRC/roborio/maven/development";
+    private static final String mavenUrl = "https://first.wpi.edu/FRC/roborio/maven/development";
     private static final String mavenLocal = userHome + "/.m2/repository";
     private static final Path tmpDir;
     private static final Path unzippedDir;

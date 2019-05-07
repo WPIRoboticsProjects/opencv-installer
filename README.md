@@ -1,11 +1,11 @@
 # opencv-installer
 Simple application to install OpenCV.
 
-This assumes that the OpenCV artifacts are located in the FRC maven repository at `http://first.wpi.edu/FRC/roborio/maven/development` or in the local maven repository.
+This assumes that the OpenCV artifacts are located in the FRC maven repository at `https://first.wpi.edu/FRC/roborio/maven/development` or in the local maven repository.
 
 (Artifacts for this project are also available in the above repository)
 
-[Link to the maven repo](http://first.wpi.edu/FRC/roborio/maven/development)
+[Link to the maven repo](https://first.wpi.edu/FRC/roborio/maven/development)
 
 For now, this is just a CLI app with no GUI.
 
